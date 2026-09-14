@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Admin Dashboard</h1>
+        <p>Full overview of users, products, and orders.</p>
+    </div>
+    <a href="{{ url_for('add_product') }}" class="btn">➕ Add Product</a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value">{{ stats.total_users }}</div></div>
+    <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-value">{{ stats.total_customers }}</div></div>
+    <div class="stat-card"><div class="stat-label">Products</div><div class="stat-value">{{ stats.total_products }}</div></div>
+    <div class="stat-card"><div class="stat-label">Orders</div><div class="stat-value">{{ stats.total_orders }}</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">{{ stats.pending_orders }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Sales</div><div class="stat-value">₱{{ "%.2f"|format(stats.total_sales) }}</div></div>
+</div>
+
+<div class="chart-grid">
+    <div class="panel chart-panel">
+        <div class="panel-header"><h3>📈 Sales Trend</h3></div>
+        <div class="chart-canvas-wrap"><canvas id="salesLineChart"></canvas></div>
+    </div>
+    <div class="panel chart-panel">
+        <div class="panel-header"><h3>🍩 Orders by Status</h3></div>
+        <div class="chart-canvas-wrap"><canvas id="statusDonutChart"></canvas></div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3>🧾 Recent Orders</h3>
+        <a href="{{ url_for('manage_orders') }}" class="btn small ghost">View All</a>
+    </div>
+    {% if recent_orders %}
+    <table>
+        <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for o in recent_orders %}
+            <tr>
+                <td><a href="{{ url_for('order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+                <td>{{ o.customer_name }}</td>
+                <td>₱{{ "%.2f"|format(o.total) }}</td>
+                <td><span class="badge {{ o.status|lower }}">{{ o.status }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No orders yet.</div>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3>🔥 Top Sellers</h3>
+        <a href="{{ url_for('analytics') }}" class="btn small ghost">Full Analytics</a>
+    </div>
+    {% if top_products %}
+    <div>
+        {% set max_qty = top_products[0][1] if top_products else 1 %}
+        {% for name, qty in top_products %}
+        <div class="mini-bar-row">
+            <div class="mb-label">{{ name }}</div>
+            <div class="mb-track"><div class="mb-fill" style="width: {{ (qty / max_qty * 100)|round(1) }}%;"></div></div>
+            <div class="mb-value">{{ qty }} sold</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No sales recorded yet.</div>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3>📦 Stock Watch</h3>
+        <a href="{{ url_for('manage_products') }}" class="btn small ghost">Manage Products</a>
+    </div>
+    {% if stats.out_of_stock or stats.low_stock %}
+    <table>
+        <thead><tr><th>Product</th><th>Stock</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for p in stats.out_of_stock %}
+            <tr><td>{{ p.name }}</td><td>{{ p.stock }}</td><td><span class="badge cancelled">Out of stock</span></td></tr>
+        {% endfor %}
+        {% for p in stats.low_stock %}
+            <tr><td>{{ p.name }}</td><td>{{ p.stock }}</td><td><span class="badge pending">Low stock</span></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">All products are well stocked. 🎉</div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    const statusCounts = {{ status_counts|tojson }};
+    const salesByDay = {{ sales_by_day|tojson }};
+    const chartTextColor = 'rgba(255,255,255,0.75)';
+    const gridColor = 'rgba(255,255,255,0.08)';
+    const dashboardCharts = [];
+
+    dashboardCharts.push(new Chart(document.getElementById('statusDonutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{
+                data: Object.values(statusCounts),
+                backgroundColor: ['#fde68a', '#93c5fd', '#86efac', '#fca5a5'],
+                borderColor: '#0a0e27',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } },
+        }
+    }));
+
+    dashboardCharts.push(new Chart(document.getElementById('salesLineChart'), {
+        type: 'line',
+        data: {
+            labels: salesByDay.map(d => d[0]),
+            datasets: [{
+                label: 'Sales (₱)',
+                data: salesByDay.map(d => d[1]),
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139,92,246,0.25)',
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: '#a5b4fc',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: chartTextColor } } },
+            scales: {
+                x: { ticks: { color: chartTextColor }, grid: { color: gridColor } },
+                y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true },
+            }
+        }
+    }));
+
+    // Fallback in case a browser's ResizeObserver-driven auto-resize misses an edge case
+    // (e.g. a scrollbar toggling, or rapid fullscreen/restore) — force a manual resize too.
+    let dashboardResizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(dashboardResizeTimer);
+        dashboardResizeTimer = setTimeout(() => {
+            dashboardCharts.forEach(c => c.resize());
+        }, 120);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Manage Users</h1>
+        <p>{{ users|length }} account(s) total.</p>
+    </div>
+    <a href="{{ url_for('add_user') }}" class="btn">➕ Add User</a>
+</div>
+
+<div class="panel">
+    {% if users %}
+    <table>
+        <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for u in users %}
+            <tr>
+                <td>{{ u.full_name }}</td>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td><span class="badge {{ u.role }}">{{ u.role }}</span></td>
+                <td><span class="badge {{ 'active' if u.active else 'inactive' }}">{{ 'Active' if u.active else 'Inactive' }}</span></td>
+                <td>{{ u.created_at.strftime('%b %d, %Y') }}</td>
+                <td class="actions-row">
+                    <a href="{{ url_for('edit_user', user_id=u.id) }}" class="btn small ghost">Edit</a>
+                    <form method="POST" action="{{ url_for('delete_user', user_id=u.id) }}" onsubmit="return confirm('Delete {{ u.username }}?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn small danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No users found.</div>
+    {% endif %}
+</div>
+{% endblock %}

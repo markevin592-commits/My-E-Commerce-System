@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Store{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Store</h1>
+        <p>Pick a quantity, then add items to your cart or buy instantly.</p>
+    </div>
+    <a href="{{ url_for('view_cart') }}" class="btn{% if not cart_count %} ghost{% endif %}">
+        🛒 View Cart{% if cart_count %} ({{ cart_count }}){% endif %}
+    </a>
+</div>
+
+{% set categories = products|map(attribute='category')|unique|list %}
+{% if categories|length > 1 %}
+<div class="category-chips">
+    <button type="button" class="chip active" data-cat="all" onclick="filterCategory(this)">All ({{ products|length }})</button>
+    {% for c in categories %}
+    <button type="button" class="chip" data-cat="{{ c }}" onclick="filterCategory(this)">{{ c }} ({{ products|selectattr('category','equalto', c)|list|length }})</button>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="product-grid" id="productGrid">
+    {% for p in products %}
+    <div class="product-card" data-category="{{ p.category }}">
+        <span class="cat-tag">{{ p.category }}</span>
+        <h4>{{ p.name }}</h4>
+        <div class="desc">{{ p.description }}</div>
+        <div class="price">₱{{ "%.2f"|format(p.price) }}</div>
+        <div class="stock {{ 'out' if p.stock==0 else ('low' if p.stock<=5 else '') }}">
+            {{ 'Out of stock' if p.stock==0 else p.stock ~ ' available' }}
+        </div>
+
+        {% if p.stock > 0 %}
+        <div class="qty-stepper" data-max="{{ p.stock }}">
+            <button type="button" onclick="stepQty(this, -1)">−</button>
+            <input type="number" id="qty-{{ p.id }}" value="1" min="1" max="{{ p.stock }}">
+            <button type="button" onclick="stepQty(this, 1)">+</button>
+        </div>
+        <div class="card-actions">
+            <form method="POST" action="{{ url_for('add_to_cart') }}" onsubmit="return syncQty(this, {{ p.id }});">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="product_id" value="{{ p.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn small add-cart">➕ Add to Cart</button>
+            </form>
+            <form method="POST" action="{{ url_for('buy_now_review') }}" onsubmit="return syncQty(this, {{ p.id }});">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="product_id" value="{{ p.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn small buy-now">⚡ Buy Now</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="card-actions">
+            <button class="btn small full" disabled style="opacity:0.5; cursor:not-allowed;">Sold Out</button>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% if not products %}
+<div class="empty-state">The store is empty right now — check back soon.</div>
+{% endif %}
+
+<div class="trust-strip">
+    <div class="trust-item"><span class="trust-icon">🚚</span><div><strong>Fast Fulfillment</strong><span>Orders are prepped as soon as they come in</span></div></div>
+    <div class="trust-item"><span class="trust-icon">🔒</span><div><strong>Secure Checkout</strong><span>Your account and orders are kept private</span></div></div>
+    <div class="trust-item"><span class="trust-icon">↩️</span><div><strong>Order Tracking</strong><span>Follow every order's status in My Orders</span></div></div>
+    <div class="trust-item"><span class="trust-icon">💬</span><div><strong>Real Support</strong><span>Reach out any time via your account team</span></div></div>
+</div>
+
+<script>
+    function stepQty(btn, delta) {
+        const wrap = btn.closest('.qty-stepper');
+        const input = wrap.querySelector('input');
+        const max = parseInt(wrap.dataset.max, 10);
+        let val = parseInt(input.value, 10) || 1;
+        val = Math.min(max, Math.max(1, val + delta));
+        input.value = val;
+    }
+    // Copy the current stepper value into the hidden quantity field before submit
+    function syncQty(form, productId) {
+        const qtyInput = document.getElementById('qty-' + productId);
+        form.querySelector('input[name="quantity"]').value = qtyInput ? qtyInput.value : 1;
+        return true;
+    }
+    function filterCategory(btn) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.dataset.cat;
+        document.querySelectorAll('#productGrid .product-card').forEach(card => {
+            card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

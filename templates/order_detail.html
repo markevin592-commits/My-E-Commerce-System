@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Order #{{ order.id }}</h1>
+        <p>Placed {{ order.created_at.strftime('%b %d, %Y %I:%M %p') }} by {{ order.customer_name }}</p>
+    </div>
+    <a href="{{ url_for(back_endpoint) }}" class="btn ghost">← Back to Orders</a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" style="font-size:1.1rem;"><span class="badge {{ order.status|lower }}">{{ order.status }}</span></div>
+    </div>
+    <div class="stat-card"><div class="stat-label">Items</div><div class="stat-value">{{ order.items|length }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">₱{{ "%.2f"|format(order.total) }}</div></div>
+</div>
+
+<div class="chart-grid">
+    <div class="panel">
+        <div class="panel-header"><h3>🧾 Itemized Breakdown</h3></div>
+        <table>
+            <thead><tr><th>Product</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
+            <tbody>
+            {% for item in order.items %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>₱{{ "%.2f"|format(item.unit_price) }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₱{{ "%.2f"|format(item.subtotal) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div style="display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-weight:800; font-size:1.1rem;">
+            Total: ₱{{ "%.2f"|format(order.total) }}
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header"><h3>🚚 Shipping & Contact</h3></div>
+        {% if order.shipping_address or order.phone %}
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            <div>
+                <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px;">Deliver To</div>
+                <div>{{ order.customer_name }}</div>
+                <div style="color:var(--text-dim); font-size:.9rem;">{{ order.shipping_address or "No address on file" }}</div>
+            </div>
+            <div>
+                <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px;">Phone</div>
+                <div>{{ order.phone or "—" }}</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">No shipping details were recorded for this order.</div>
+        {% endif %}
+
+        {% if current_user.role in ['admin', 'staff'] %}
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+            <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:8px;">Update Status</div>
+            <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="status" onchange="this.form.submit()">
+                    {% for s in statuses %}
+                    <option value="{{ s }}" {{ 'selected' if s==order.status }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% if order.status == 'Cancelled' %}
+            <p style="font-size:.78rem; color:var(--text-dim); margin-top:8px;">Stock for these items was automatically restocked when this order was cancelled.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

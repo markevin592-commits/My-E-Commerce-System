@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Analytics</h1>
+        <p>Live figures computed from current in-memory data.</p>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Sales</div><div class="stat-value">₱{{ "%.2f"|format(stats.total_sales) }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">{{ stats.total_orders }}</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">{{ stats.pending_orders }}</div></div>
+    <div class="stat-card"><div class="stat-label">Products Listed</div><div class="stat-value">{{ stats.total_products }}</div></div>
+</div>
+
+<div class="chart-grid">
+    <div class="panel chart-panel">
+        <div class="panel-header"><h3>📈 Sales Over Time</h3></div>
+        <div class="chart-canvas-wrap"><canvas id="salesLineChart"></canvas></div>
+    </div>
+    <div class="panel chart-panel">
+        <div class="panel-header"><h3>🍩 Orders by Status</h3></div>
+        <div class="chart-canvas-wrap"><canvas id="statusDonutChart"></canvas></div>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div class="panel chart-panel" style="max-width: 480px;">
+        <div class="panel-header"><h3>🏷️ Products by Category</h3></div>
+        <div class="chart-canvas-wrap"><canvas id="categoryDonutChart"></canvas></div>
+    </div>
+    <div class="panel chart-panel">
+        <div class="panel-header"><h3>🔥 Top Selling Products</h3></div>
+        <div class="chart-canvas-wrap"><canvas id="topProductsChart"></canvas></div>
+    </div>
+</div>
+
+<div class="panel chart-panel">
+    <div class="panel-header"><h3>💰 Revenue by Customer</h3></div>
+    {% if revenue_by_customer %}
+    <div class="chart-canvas-wrap"><canvas id="revenueByCustomerChart"></canvas></div>
+    {% else %}
+    <div class="empty-state">No completed orders yet — revenue will show up here once customers check out.</div>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h3>🔥 Top Selling Products (table)</h3></div>
+    {% if top_products %}
+    <div>
+        {% set max_qty = top_products[0][1] if top_products else 1 %}
+        {% for name, qty in top_products %}
+        <div class="mini-bar-row">
+            <div class="mb-label">{{ name }}</div>
+            <div class="mb-track"><div class="mb-fill" style="width: {{ (qty / max_qty * 100)|round(1) }}%;"></div></div>
+            <div class="mb-value">{{ qty }} sold</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No sales recorded yet.</div>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h3>💰 Revenue by Customer (table)</h3></div>
+    {% if revenue_by_customer %}
+    <table>
+        <thead><tr><th>Customer</th><th>Revenue</th></tr></thead>
+        <tbody>
+        {% for name, total in revenue_by_customer %}
+            <tr><td>{{ name }}</td><td>₱{{ "%.2f"|format(total) }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No completed orders yet.</div>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h3>📦 Orders by Status (table)</h3></div>
+    <table>
+        <thead><tr><th>Status</th><th>Count</th></tr></thead>
+        <tbody>
+        {% for s, count in status_counts.items() %}
+            <tr>
+                <td><span class="badge {{ s|lower }}">{{ s }}</span></td>
+                <td>{{ count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h3>🏷️ Products by Category (table)</h3></div>
+    <table>
+        <thead><tr><th>Category</th><th>Items</th><th>Total Stock</th></tr></thead>
+        <tbody>
+        {% set categories = products|map(attribute='category')|unique|list %}
+        {% for c in categories %}
+            {% set items = products|selectattr('category','equalto', c)|list %}
+            <tr>
+                <td>{{ c }}</td>
+                <td>{{ items|length }}</td>
+                <td>{{ items|sum(attribute='stock') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+    const statusCounts = {{ status_counts|tojson }};
+    const salesByDay = {{ sales_by_day|tojson }};
+    const categoryCounts = {{ category_counts|tojson }};
+    const topProducts = {{ top_products|tojson }};
+    const revenueByCustomer = {{ revenue_by_customer|tojson }};
+    const chartTextColor = 'rgba(255,255,255,0.75)';
+    const gridColor = 'rgba(255,255,255,0.08)';
+    const palette = ['#fde68a', '#93c5fd', '#86efac', '#fca5a5', '#c4b5fd', '#f9a8d4'];
+    const analyticsCharts = [];
+
+    if (topProducts.length) {
+        analyticsCharts.push(new Chart(document.getElementById('topProductsChart'), {
+            type: 'bar',
+            data: {
+                labels: topProducts.map(d => d[0]),
+                datasets: [{ label: 'Units Sold', data: topProducts.map(d => d[1]), backgroundColor: '#86efac', borderRadius: 6 }]
+            },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: chartTextColor, precision: 0 }, grid: { color: gridColor }, beginAtZero: true },
+                    y: { ticks: { color: chartTextColor }, grid: { display: false } },
+                }
+            }
+        }));
+    }
+
+    if (revenueByCustomer.length) {
+        analyticsCharts.push(new Chart(document.getElementById('revenueByCustomerChart'), {
+            type: 'bar',
+            data: {
+                labels: revenueByCustomer.map(d => d[0]),
+                datasets: [{ label: 'Revenue (₱)', data: revenueByCustomer.map(d => d[1]), backgroundColor: '#93c5fd', borderRadius: 6 }]
+            },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: chartTextColor }, grid: { display: false } },
+                    y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true },
+                }
+            }
+        }));
+    }
+
+    analyticsCharts.push(new Chart(document.getElementById('statusDonutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statusCounts),
+            datasets: [{ data: Object.values(statusCounts), backgroundColor: palette, borderColor: '#0a0e27', borderWidth: 2 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } } }
+    }));
+
+    analyticsCharts.push(new Chart(document.getElementById('categoryDonutChart'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categoryCounts),
+            datasets: [{ data: Object.values(categoryCounts), backgroundColor: palette, borderColor: '#0a0e27', borderWidth: 2 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } } }
+    }));
+
+    analyticsCharts.push(new Chart(document.getElementById('salesLineChart'), {
+        type: 'line',
+        data: {
+            labels: salesByDay.map(d => d[0]),
+            datasets: [{
+                label: 'Sales (₱)', data: salesByDay.map(d => d[1]),
+                borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.25)',
+                fill: true, tension: 0.35, pointBackgroundColor: '#a5b4fc',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: chartTextColor } } },
+            scales: {
+                x: { ticks: { color: chartTextColor }, grid: { color: gridColor } },
+                y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true },
+            }
+        }
+    }));
+
+    // Fallback in case a browser's ResizeObserver-driven auto-resize misses an edge case
+    // (e.g. a scrollbar toggling, or rapid fullscreen/restore) — force a manual resize too.
+    let analyticsResizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(analyticsResizeTimer);
+        analyticsResizeTimer = setTimeout(() => {
+            analyticsCharts.forEach(c => c.resize());
+        }, 120);
+    });
+</script>
+{% endblock %}

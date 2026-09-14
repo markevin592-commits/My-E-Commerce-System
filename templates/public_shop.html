@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - MK System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="public-page">
+        <header class="public-topbar">
+            <div class="topbar-left">
+                <div class="logo">MK</div>
+                <div class="brand-block">
+                    <h2>MK Shop</h2>
+                    <span>Browse freely — no account needed</span>
+                </div>
+                <div class="topbar-auth">
+                    <a href="{{ url_for('login') }}" class="btn small ghost">Log In</a>
+                    <a href="{{ url_for('signup') }}" class="btn small">Sign Up</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="public-main">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-wrap">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="page-header">
+                <div>
+                    <h1>Welcome to the Shop</h1>
+                    <p>Take a look around. <a href="{{ url_for('login') }}">Log in</a> or <a href="{{ url_for('signup') }}">create an account</a> whenever you're ready to order.</p>
+                </div>
+            </div>
+
+            <div class="product-grid">
+                {% for p in products %}
+                <div class="product-card">
+                    <span class="cat-tag">{{ p.category }}</span>
+                    <h4>{{ p.name }}</h4>
+                    <div class="desc">{{ p.description }}</div>
+                    <div class="price">₱{{ "%.2f"|format(p.price) }}</div>
+                    <div class="stock {{ 'out' if p.stock==0 else ('low' if p.stock<=5 else '') }}">
+                        {{ 'Out of stock' if p.stock==0 else p.stock ~ ' available' }}
+                    </div>
+                    {% if p.stock > 0 %}
+                    <div class="card-actions">
+                        <a href="{{ url_for('login') }}" class="btn small add-cart full">🔒 Log In to Add to Cart</a>
+                        <a href="{{ url_for('signup') }}" class="btn small buy-now full">⚡ Sign Up & Buy</a>
+                    </div>
+                    {% else %}
+                    <button class="btn small full" disabled style="opacity:0.5; cursor:not-allowed;">Sold Out</button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% if not products %}
+            <div class="empty-state">The store is empty right now — check back soon.</div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Staff Dashboard</h1>
+        <p>Manage products and keep orders moving.</p>
+    </div>
+    <a href="{{ url_for('add_product') }}" class="btn">➕ Add Product</a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Products</div><div class="stat-value">{{ stats.total_products }}</div></div>
+    <div class="stat-card"><div class="stat-label">Orders</div><div class="stat-value">{{ stats.total_orders }}</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">{{ stats.pending_orders }}</div></div>
+    <div class="stat-card"><div class="stat-label">Out of Stock</div><div class="stat-value">{{ stats.out_of_stock|length }}</div></div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3>🧾 Latest Orders</h3>
+        <a href="{{ url_for('manage_orders') }}" class="btn small ghost">Manage Orders</a>
+    </div>
+    {% if orders %}
+    <table>
+        <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+            <tr>
+                <td><a href="{{ url_for('order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+                <td>{{ o.customer_name }}</td>
+                <td>₱{{ "%.2f"|format(o.total) }}</td>
+                <td><span class="badge {{ o.status|lower }}">{{ o.status }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No orders yet.</div>
+    {% endif %}
+</div>
+
+<div class="panel">
+    <div class="panel-header"><h3>📦 Products</h3><a href="{{ url_for('manage_products') }}" class="btn small ghost">View All</a></div>
+    <div class="product-grid">
+        {% for p in products[:4] %}
+        <div class="product-card">
+            <h4>{{ p.name }}</h4>
+            <div class="desc">{{ p.category }}</div>
+            <div class="price">₱{{ "%.2f"|format(p.price) }}</div>
+            <div class="stock {{ 'out' if p.stock==0 else ('low' if p.stock<=5 else '') }}">{{ p.stock }} in stock</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

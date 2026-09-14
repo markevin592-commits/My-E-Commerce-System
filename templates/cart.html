@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}My Cart{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>My Cart</h1>
+        <p>{{ items|length }} distinct item(s) in your cart.</p>
+    </div>
+    <a href="{{ url_for('store_page') }}" class="btn ghost">🛍️ Keep Shopping</a>
+</div>
+
+<div class="panel">
+    {% if items %}
+    <table>
+        <thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Subtotal</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for row in items %}
+            <tr>
+                <td>{{ row.product.name }}</td>
+                <td>₱{{ "%.2f"|format(row.product.price) }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('update_cart', product_id=row.product.id) }}" class="qty-stepper" style="display:inline-flex;" onsubmit="return true;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="button" onclick="cartStep(this, -1)">−</button>
+                        <input type="number" name="quantity" value="{{ row.quantity }}" min="1" max="{{ row.product.stock }}" onchange="this.form.submit()">
+                        <button type="button" onclick="cartStep(this, 1)">+</button>
+                    </form>
+                </td>
+                <td>₱{{ "%.2f"|format(row.subtotal) }}</td>
+                <td class="actions-row">
+                    <form method="POST" action="{{ url_for('remove_from_cart', product_id=row.product.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn small danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="panel form-card" style="margin-top:22px; padding-top:0; border:none; background:transparent; padding:0;">
+        <h3 style="margin-bottom:14px;">🙍 Review Your Details</h3>
+        <div style="display:flex; gap:32px; flex-wrap:wrap; margin-bottom:18px;">
+            <div>
+                <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px;">Full Name</div>
+                <div>{{ current_user.full_name }}</div>
+            </div>
+            <div>
+                <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px;">Email</div>
+                <div>{{ current_user.email }}</div>
+            </div>
+        </div>
+        <small style="display:block; margin-bottom:14px;">Not you, or need to fix your name/email? <a href="{{ url_for('profile') }}">Update your profile →</a></small>
+        <form method="POST" action="{{ url_for('checkout_cart') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field">
+                <label>Shipping Address</label>
+                <textarea name="shipping_address" rows="2" placeholder="House/Unit No., Street, Barangay, City, Province" required>{{ current_user.shipping_address }}</textarea>
+            </div>
+            <div class="field">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" value="{{ current_user.phone }}" placeholder="09XX-XXX-XXXX" required>
+            </div>
+            <div class="checkout-summary">
+                <div class="checkout-total">Total: ₱{{ "%.2f"|format(total) }}</div>
+                <button type="submit" class="btn">✅ Confirm & Checkout</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="empty-state">Your cart is empty. <a href="{{ url_for('store_page') }}">Browse the store →</a></div>
+    {% endif %}
+</div>
+
+<script>
+    function cartStep(btn, delta) {
+        const form = btn.closest('form');
+        const input = form.querySelector('input[name="quantity"]');
+        const max = parseInt(input.getAttribute('max'), 10) || 9999;
+        let val = parseInt(input.value, 10) || 1;
+        val = Math.min(max, Math.max(1, val + delta));
+        input.value = val;
+        form.submit();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - MK System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <div class="auth-logo">MK</div>
+            <h1>Create Account</h1>
+            <p class="auth-sub">Join as a shopper or store staff member</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-wrap">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" value="{{ form.full_name or '' }}" placeholder="Juan Dela Cruz" required>
+                </div>
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" name="username" value="{{ form.username or '' }}" placeholder="Choose a username" required>
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" name="email" value="{{ form.email or '' }}" placeholder="you@gmail.com" pattern="[^@\s]+@gmail\.com" title="Must be a real Gmail address, e.g. name@gmail.com" required>
+                    <small>Must be a real Gmail address — you'll use it to sign in.</small>
+                </div>
+                <div class="field">
+                    <label>Account Type</label>
+                    <select name="role">
+                        <option value="customer" {{ 'selected' if form.role=='customer' }}>Customer — browse & order</option>
+                        <option value="staff" {{ 'selected' if form.role=='staff' }}>Staff — manage products & orders</option>
+                    </select>
+                    <small>Admin accounts are created by an existing administrator.</small>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <div class="password-field">
+                        <input type="password" name="password" placeholder="At least 6 characters" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordField(this)" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Confirm Password</label>
+                    <div class="password-field">
+                        <input type="password" name="confirm_password" placeholder="Re-enter password" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordField(this)" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    </div>
+                </div>
+                <button type="submit" class="btn full">Create Account</button>
+            </form>
+
+            <p class="footer-text">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+        </div>
+    </div>
+    <script>
+        const EYE_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.86 21.86 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.9 21.9 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+        function togglePasswordField(btn) {
+            const input = btn.previousElementSibling;
+            const showing = input.type === "text";
+            input.type = showing ? "password" : "text";
+            btn.innerHTML = showing ? EYE_ICON : EYE_OFF_ICON;
+            btn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+        }
+    </script>
+</body>
+</html>

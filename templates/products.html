@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Manage Products{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Manage Products</h1>
+        <p>{{ products|length }} product(s) in the catalog.</p>
+    </div>
+    <a href="{{ url_for('add_product') }}" class="btn">➕ Add Product</a>
+</div>
+
+<div class="panel">
+    {% if products %}
+    <table>
+        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Added By</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for p in products %}
+            <tr>
+                <td>{{ p.name }}</td>
+                <td>{{ p.category }}</td>
+                <td>₱{{ "%.2f"|format(p.price) }}</td>
+                <td>
+                    {% if p.stock == 0 %}<span class="badge cancelled">Out of stock</span>
+                    {% elif p.stock <= 5 %}<span class="badge pending">{{ p.stock }} left</span>
+                    {% else %}{{ p.stock }}{% endif %}
+                </td>
+                <td>{{ p.created_by }}</td>
+                <td class="actions-row">
+                    <a href="{{ url_for('edit_product', product_id=p.id) }}" class="btn small ghost">Edit</a>
+                    <form method="POST" action="{{ url_for('delete_product', product_id=p.id) }}" onsubmit="return confirm('Delete {{ p.name }}?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn small danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No products yet. <a href="{{ url_for('add_product') }}">Add your first one →</a></div>
+    {% endif %}
+</div>
+{% endblock %}

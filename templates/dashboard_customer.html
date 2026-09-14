@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Welcome, {{ current_user.full_name.split(' ')[0] }} 👋</h1>
+        <p>Here's what's happening with your account.</p>
+    </div>
+    <a href="{{ url_for('store_page') }}" class="btn">🛍️ Browse Store</a>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h3>🧾 Recent Orders</h3>
+        <a href="{{ url_for('my_orders') }}" class="btn small ghost">View All</a>
+    </div>
+    {% if orders %}
+    <table>
+        <thead><tr><th>Order</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+            <tr>
+                <td><a href="{{ url_for('order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+                <td>₱{{ "%.2f"|format(o.total) }}</td>
+                <td><span class="badge {{ o.status|lower }}">{{ o.status }}</span></td>
+                <td>{{ o.created_at.strftime('%b %d, %Y') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">You haven't placed any orders yet. <a href="{{ url_for('store_page') }}">Go shopping →</a></div>
+    {% endif %}
+</div>
+
+<div class="chart-grid">
+    <div class="panel" style="flex:2;">
+        <div class="panel-header"><h3>✨ Featured Products</h3><a href="{{ url_for('store_page') }}" class="btn small ghost">See All</a></div>
+        <div class="product-grid">
+            {% for p in products %}
+            <div class="product-card">
+                <span class="cat-tag">{{ p.category }}</span>
+                <h4>{{ p.name }}</h4>
+                <div class="desc">{{ p.description }}</div>
+                <div class="price">₱{{ "%.2f"|format(p.price) }}</div>
+                <div class="stock {{ 'out' if p.stock==0 else ('low' if p.stock<=5 else '') }}">
+                    {{ 'Out of stock' if p.stock==0 else p.stock ~ ' left' }}
+                </div>
+                {% if p.stock > 0 %}
+                <div class="card-actions">
+                    <form method="POST" action="{{ url_for('add_to_cart') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="product_id" value="{{ p.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn small add-cart">➕ Add to Cart</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('buy_now_review') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="product_id" value="{{ p.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn small buy-now">⚡ Buy Now</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="card-actions">
+                    <button class="btn small" disabled style="opacity:0.5; cursor:not-allowed;">Sold Out</button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel" style="flex:1; min-width:240px;">
+        <div class="panel-header"><h3>🛒 Your Cart</h3><a href="{{ url_for('view_cart') }}" class="btn small ghost">Open</a></div>
+        {% if cart_items %}
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;">
+            {% for row in cart_items %}
+            <li style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                <span>{{ row.product.name }} <span style="color:var(--text-dim);">x{{ row.quantity }}</span></span>
+                <span>₱{{ "%.2f"|format(row.subtotal) }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); font-weight:700;">
+            <span>Total</span><span>₱{{ "%.2f"|format(cart_total) }}</span>
+        </div>
+        <a href="{{ url_for('view_cart') }}" class="btn small full" style="margin-top:12px;">Go to Checkout</a>
+        {% else %}
+        <div class="empty-state">Your cart is empty. <a href="{{ url_for('store_page') }}">Start shopping →</a></div>
+        {% endif %}
+
+        <div style="margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; gap:12px;">
+            <h4 style="margin:0; font-size:0.85rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-dim);">Account Snapshot</h4>
+            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--text-dim);">Total Orders</span><strong>{{ order_count }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--text-dim);">Total Spent</span><strong>₱{{ "%.2f"|format(total_spent) }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                <span style="color:var(--text-dim);">Member Since</span><strong>{{ current_user.created_at.strftime('%b %Y') }}</strong>
+            </div>
+            <a href="{{ url_for('profile') }}" class="btn small ghost full">View Profile</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

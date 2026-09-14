@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit User' if mode=='edit' else 'Add User' }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ 'Edit User' if mode=='edit' else 'Add New User' }}</h1>
+        <p>{{ 'Update account details.' if mode=='edit' else 'Create an admin, staff, or customer account.' }}</p>
+    </div>
+</div>
+
+<div class="panel form-card">
+    <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="field">
+            <label>Full Name</label>
+            <input type="text" name="full_name" value="{{ form.full_name or '' }}" required>
+        </div>
+
+        {% if mode == 'add' %}
+        <div class="field">
+            <label>Username</label>
+            <input type="text" name="username" value="{{ form.username or '' }}" required>
+        </div>
+        {% endif %}
+
+        <div class="field">
+            <label>Email</label>
+            <input type="email" name="email" value="{{ form.email or '' }}" placeholder="name@gmail.com" pattern="[^@\s]+@gmail\.com" title="Must be a real Gmail address, e.g. name@gmail.com" required>
+        </div>
+
+        {% if mode == 'add' %}
+        <div class="field">
+            <label>Role</label>
+            <select name="role">
+                <option value="customer" {{ 'selected' if form.role=='customer' }}>Customer</option>
+                <option value="staff" {{ 'selected' if form.role=='staff' }}>Staff</option>
+                <option value="admin" {{ 'selected' if form.role=='admin' }}>Admin</option>
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="field">
+            <label>{{ 'New Password (leave blank to keep current)' if mode=='edit' else 'Password' }}</label>
+            <div class="password-field">
+                        <input type="password" name="password" placeholder="At least 6 characters" {{ 'required' if mode=='add' }}>
+                        <button type="button" class="password-toggle" onclick="togglePasswordField(this)" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    </div>
+        </div>
+
+        {% if mode == 'edit' %}
+        <div class="checkbox-row">
+            <input type="checkbox" name="active" id="active" {{ 'checked' if form.active }}>
+            <label for="active" style="margin:0; text-transform:none; font-weight:500;">Account is active</label>
+        </div>
+        {% endif %}
+
+        <div class="actions-row">
+            <button type="submit" class="btn">{{ 'Save Changes' if mode=='edit' else 'Create User' }}</button>
+            <a href="{{ url_for('manage_users') }}" class="btn ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

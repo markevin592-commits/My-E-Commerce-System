@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Review Your Order{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Review Your Order</h1>
+        <p>Double-check everything below before you confirm.</p>
+    </div>
+    <a href="{{ url_for('store_page') }}" class="btn ghost">← Back to Store</a>
+</div>
+
+<div class="chart-grid">
+    <div class="panel">
+        <div class="panel-header"><h3>🧾 Order Summary</h3></div>
+        <table>
+            <thead><tr><th>Product</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>₱{{ "%.2f"|format(product.price) }}</td>
+                    <td>{{ quantity }}</td>
+                    <td>₱{{ "%.2f"|format(subtotal) }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-weight:800; font-size:1.1rem;">
+            Total: ₱{{ "%.2f"|format(subtotal) }}
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header"><h3>🙍 Your Information</h3></div>
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom: 18px;">
+            <div>
+                <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px;">Full Name</div>
+                <div>{{ current_user.full_name }}</div>
+            </div>
+            <div>
+                <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:4px;">Email</div>
+                <div>{{ current_user.email }}</div>
+                <small><a href="{{ url_for('profile') }}">Not you? Update your profile →</a></small>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('buy_now_confirm') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="quantity" value="{{ quantity }}">
+            <div class="field">
+                <label>Shipping Address</label>
+                <textarea name="shipping_address" rows="2" placeholder="House/Unit No., Street, Barangay, City, Province" required>{{ shipping_address }}</textarea>
+            </div>
+            <div class="field">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" value="{{ phone }}" placeholder="09XX-XXX-XXXX" required>
+            </div>
+            <div class="actions-row" style="margin-top:8px;">
+                <button type="submit" class="btn">✅ Confirm & Place Order</button>
+                <a href="{{ url_for('store_page') }}" class="btn ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

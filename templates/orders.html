@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Manage Orders{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Manage Orders</h1>
+        <p>{{ orders|length }} order(s) placed so far.</p>
+    </div>
+</div>
+
+<div class="panel">
+    {% if orders %}
+    <table>
+        <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+            <tr>
+                <td><a href="{{ url_for('order_detail', order_id=o.id) }}">#{{ o.id }}</a></td>
+                <td>{{ o.customer_name }}</td>
+                <td>
+                    {% for item in o.items %}
+                        {{ item.product_name }} x{{ item.quantity }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>₱{{ "%.2f"|format(o.total) }}</td>
+                <td><span class="badge {{ o.status|lower }}">{{ o.status }}</span></td>
+                <td>{{ o.created_at.strftime('%b %d, %Y %I:%M %p') }}</td>
+                <td class="actions-row">
+                    <form method="POST" action="{{ url_for('update_order_status', order_id=o.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <select name="status" onchange="this.form.submit()">
+                            {% for s in statuses %}
+                            <option value="{{ s }}" {{ 'selected' if s==o.status }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% if current_user.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_order', order_id=o.id) }}" onsubmit="return confirm('Delete order #{{ o.id }}?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn small danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No orders have been placed yet.</div>
+    {% endif %}
+</div>
+{% endblock %}
