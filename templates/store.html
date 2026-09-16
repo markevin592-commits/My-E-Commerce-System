@@ -12,6 +12,10 @@
 </div>
 
 {% set categories = products|map(attribute='category')|unique|list %}
+<div class="topbar-search" style="max-width:480px; margin-bottom:18px;">
+    <input type="text" id="storeSearch" placeholder="🔍 Search products, brands, and categories" value="{{ search_query }}" oninput="filterShop()">
+</div>
+
 {% if categories|length > 1 %}
 <div class="category-chips">
     <button type="button" class="chip active" data-cat="all" onclick="filterCategory(this)">All ({{ products|length }})</button>
@@ -63,6 +67,7 @@
 {% if not products %}
 <div class="empty-state">The store is empty right now — check back soon.</div>
 {% endif %}
+<div class="empty-state" id="storeNoResults" style="display:none;">No products match your search.</div>
 
 <div class="trust-strip">
     <div class="trust-item"><span class="trust-icon">🚚</span><div><strong>Fast Fulfillment</strong><span>Orders are prepped as soon as they come in</span></div></div>
@@ -89,10 +94,28 @@
     function filterCategory(btn) {
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        const cat = btn.dataset.cat;
-        document.querySelectorAll('#productGrid .product-card').forEach(card => {
-            card.style.display = (cat === 'all' || card.dataset.category === cat) ? '' : 'none';
-        });
+        filterShop();
     }
+    function filterShop() {
+        const searchEl = document.getElementById('storeSearch');
+        const search = searchEl ? searchEl.value.trim().toLowerCase() : '';
+        const activeChip = document.querySelector('.chip.active');
+        const cat = activeChip ? activeChip.dataset.cat : 'all';
+        let visibleCount = 0;
+        document.querySelectorAll('#productGrid .product-card').forEach(card => {
+            const matchesCat = (cat === 'all' || card.dataset.category === cat);
+            const matchesSearch = !search || card.textContent.toLowerCase().includes(search);
+            const show = matchesCat && matchesSearch;
+            card.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        });
+        const noResults = document.getElementById('storeNoResults');
+        if (noResults) noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+    // If we arrived here via the dashboard's top search bar (?q=...), apply it immediately.
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchEl = document.getElementById('storeSearch');
+        if (searchEl && searchEl.value.trim()) filterShop();
+    });
 </script>
 {% endblock %}
