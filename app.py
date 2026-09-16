@@ -13,6 +13,13 @@ Storage: everything lives in-memory inside a single DataStore instance
 resets all data (by design - "Temporary Storage", no database).
 """
 
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello from Gunicorn!"
+
 from functools import wraps
 import re
 from flask import (
