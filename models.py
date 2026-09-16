@@ -585,6 +585,48 @@ def seed(store: DataStore):
     store.add_product(name="Artisan Honey (Pure, 350ml)", description="Raw unfiltered honey from local apiaries.",
                        price=259.00, stock=2, category="Grocery", created_by="admin")
 
+    # --- More Electronics ---
+    store.add_product(name="Wireless Charging Pad", description="10W Qi fast charger, non-slip base.",
+                       price=549.00, stock=24, category="Electronics", created_by="admin")
+    store.add_product(name="Bluetooth Mini Speaker", description="Portable speaker, 8-hour battery, IPX5.",
+                       price=799.00, stock=16, category="Electronics", created_by="staff")
+    store.add_product(name="Phone Ring Light", description="LED selfie ring light with tripod stand.",
+                       price=399.00, stock=33, category="Electronics", created_by="staff")
+
+    # --- Beauty ---
+    store.add_product(name="Vitamin C Serum (30ml)", description="Brightening facial serum with niacinamide.",
+                       price=449.00, stock=28, category="Beauty", created_by="admin")
+    store.add_product(name="Matte Lip Tint Set (3pcs)", description="Long-lasting, transfer-proof lip tints.",
+                       price=329.00, stock=41, category="Beauty", created_by="staff")
+    store.add_product(name="Sunscreen SPF50 (50ml)", description="Lightweight, non-greasy daily sunscreen.",
+                       price=389.00, stock=1, category="Beauty", created_by="admin")
+
+    # --- Sports & Outdoors ---
+    store.add_product(name="Yoga Mat (6mm)", description="Non-slip eco-friendly yoga/exercise mat.",
+                       price=599.00, stock=19, category="Sports", created_by="staff")
+    store.add_product(name="Resistance Bands Set (5pcs)", description="Latex bands, light to heavy resistance.",
+                       price=349.00, stock=37, category="Sports", created_by="admin")
+    store.add_product(name="Adjustable Dumbbell (5kg)", description="Rubber-coated hex dumbbell, single unit.",
+                       price=449.00, stock=14, category="Sports", created_by="staff")
+
+    # --- Toys & Hobbies ---
+    store.add_product(name="3D Wooden Puzzle", description="DIY mechanical model kit, no glue needed.",
+                       price=299.00, stock=23, category="Toys", created_by="admin")
+    store.add_product(name="Building Blocks Set (500pcs)", description="Compatible creative brick set, all ages.",
+                       price=899.00, stock=9, category="Toys", created_by="staff")
+
+    # --- Books ---
+    store.add_product(name="'Atomic Habits' (Paperback)", description="Bestselling book on building good habits.",
+                       price=549.00, stock=17, category="Books", created_by="admin")
+    store.add_product(name="Sketchbook (A4, 100gsm)", description="Blank pages for drawing and sketching.",
+                       price=189.00, stock=45, category="Books", created_by="staff")
+
+    # --- Pets ---
+    store.add_product(name="Cat Scratching Post", description="Sisal-wrapped post with plush platform.",
+                       price=749.00, stock=8, category="Pets", created_by="admin")
+    store.add_product(name="Dog Chew Toy (Durable)", description="Non-toxic rubber chew toy, medium breeds.",
+                       price=249.00, stock=30, category="Pets", created_by="staff")
+
     # The demo customer starts with a saved address/phone for convenience at checkout,
     # but with NO orders — Recent Orders / My Orders should stay empty until they
     # actually place one themselves.

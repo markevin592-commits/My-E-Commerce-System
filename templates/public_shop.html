@@ -9,11 +9,16 @@
 <body>
     <div class="public-page">
         <header class="public-topbar">
-            <div class="topbar-left">
-                <div class="logo">MK</div>
-                <div class="brand-block">
-                    <h2>MK Shop</h2>
-                    <span>Browse freely — no account needed</span>
+            <div class="topbar-row">
+                <div class="topbar-brand">
+                    <div class="logo">MK</div>
+                    <div class="brand-block">
+                        <h2>MK Shop</h2>
+                        <span>Browse freely — no account needed</span>
+                    </div>
+                </div>
+                <div class="topbar-search">
+                    <input type="text" id="shopSearch" placeholder="🔍 Search products, brands, and categories" oninput="filterShop()">
                 </div>
                 <div class="topbar-auth">
                     <a href="{{ url_for('login') }}" class="btn small ghost">Log In</a>
@@ -40,9 +45,19 @@
                 </div>
             </div>
 
-            <div class="product-grid">
+            {% set categories = products|map(attribute='category')|unique|list %}
+            {% if categories|length > 1 %}
+            <div class="category-chips">
+                <button type="button" class="chip active" data-cat="all" onclick="filterCategory(this)">All ({{ products|length }})</button>
+                {% for c in categories %}
+                <button type="button" class="chip" data-cat="{{ c }}" onclick="filterCategory(this)">{{ c }} ({{ products|selectattr('category','equalto', c)|list|length }})</button>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="product-grid" id="shopGrid">
                 {% for p in products %}
-                <div class="product-card">
+                <div class="product-card" data-category="{{ p.category }}">
                     <span class="cat-tag">{{ p.category }}</span>
                     <h4>{{ p.name }}</h4>
                     <div class="desc">{{ p.description }}</div>
@@ -64,7 +79,31 @@
             {% if not products %}
             <div class="empty-state">The store is empty right now — check back soon.</div>
             {% endif %}
+            <div class="empty-state" id="noResults" style="display:none;">No products match your search.</div>
         </main>
     </div>
+
+    <script>
+        function filterCategory(btn) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            filterShop();
+        }
+        function filterShop() {
+            const search = document.getElementById('shopSearch').value.trim().toLowerCase();
+            const activeChip = document.querySelector('.chip.active');
+            const cat = activeChip ? activeChip.dataset.cat : 'all';
+            let visibleCount = 0;
+            document.querySelectorAll('#shopGrid .product-card').forEach(card => {
+                const matchesCat = (cat === 'all' || card.dataset.category === cat);
+                const matchesSearch = !search || card.textContent.toLowerCase().includes(search);
+                const show = matchesCat && matchesSearch;
+                card.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
+            });
+            const noResults = document.getElementById('noResults');
+            if (noResults) noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>

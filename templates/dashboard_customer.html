@@ -9,6 +9,13 @@
     <a href="{{ url_for('store_page') }}" class="btn">🛍️ Browse Store</a>
 </div>
 
+<form method="GET" action="{{ url_for('store_page') }}" style="display:flex; gap:10px; margin-bottom:24px;">
+    <div class="topbar-search" style="flex:1;">
+        <input type="text" name="q" placeholder="🔍 Search for products you need — e.g. 'mouse', 'candle', 'yoga mat'...">
+    </div>
+    <button type="submit" class="btn">Search</button>
+</form>
+
 <div class="panel">
     <div class="panel-header">
         <h3>🧾 Recent Orders</h3>
@@ -36,7 +43,7 @@
 <div class="chart-grid">
     <div class="panel" style="flex:2;">
         <div class="panel-header"><h3>✨ Featured Products</h3><a href="{{ url_for('store_page') }}" class="btn small ghost">See All</a></div>
-        <div class="product-grid">
+        <div class="product-grid" id="featuredGrid">
             {% for p in products %}
             <div class="product-card">
                 <span class="cat-tag">{{ p.category }}</span>

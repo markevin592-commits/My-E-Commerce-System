@@ -242,7 +242,7 @@ def customer_dashboard():
     return render_template(
         "dashboard_customer.html",
         orders=all_orders[:5],
-        products=store.list_products()[:4],
+        products=store.list_products()[:8],
         cart_items=store.get_cart_items(user.id),
         cart_total=store.cart_total(user.id),
         order_count=len(all_orders),
@@ -466,7 +466,8 @@ def delete_product(product_id):
 @app.route("/store")
 @roles_required("customer")
 def store_page():
-    return render_template("store.html", products=store.list_products())
+    return render_template("store.html", products=store.list_products(),
+                            search_query=request.args.get("q", ""))
 
 
 @app.route("/store/order", methods=["POST"])
