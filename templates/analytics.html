@@ -120,9 +120,9 @@
     const categoryCounts = {{ category_counts|tojson }};
     const topProducts = {{ top_products|tojson }};
     const revenueByCustomer = {{ revenue_by_customer|tojson }};
-    const chartTextColor = 'rgba(255,255,255,0.75)';
-    const gridColor = 'rgba(255,255,255,0.08)';
-    const palette = ['#fde68a', '#93c5fd', '#86efac', '#fca5a5', '#c4b5fd', '#f9a8d4'];
+    const chartTextColor = 'rgba(58,35,23,0.75)';
+    const gridColor = 'rgba(58,35,23,0.1)';
+    const palette = ['#FC6C26', '#F59E0B', '#16A34A', '#DC2626', '#C2410C', '#EAB308'];
     const analyticsCharts = [];
 
     if (topProducts.length) {
@@ -130,7 +130,7 @@
             type: 'bar',
             data: {
                 labels: topProducts.map(d => d[0]),
-                datasets: [{ label: 'Units Sold', data: topProducts.map(d => d[1]), backgroundColor: '#86efac', borderRadius: 6 }]
+                datasets: [{ label: 'Units Sold', data: topProducts.map(d => d[1]), backgroundColor: '#FC6C26', borderRadius: 6 }]
             },
             options: {
             responsive: true,
@@ -150,7 +150,7 @@
             type: 'bar',
             data: {
                 labels: revenueByCustomer.map(d => d[0]),
-                datasets: [{ label: 'Revenue (₱)', data: revenueByCustomer.map(d => d[1]), backgroundColor: '#93c5fd', borderRadius: 6 }]
+                datasets: [{ label: 'Revenue (₱)', data: revenueByCustomer.map(d => d[1]), backgroundColor: '#E14E17', borderRadius: 6 }]
             },
             options: {
             responsive: true,
@@ -168,7 +168,7 @@
         type: 'doughnut',
         data: {
             labels: Object.keys(statusCounts),
-            datasets: [{ data: Object.values(statusCounts), backgroundColor: palette, borderColor: '#0a0e27', borderWidth: 2 }]
+            datasets: [{ data: Object.values(statusCounts), backgroundColor: palette, borderColor: '#FFF4D6', borderWidth: 2 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } } }
     }));
@@ -177,7 +177,7 @@
         type: 'doughnut',
         data: {
             labels: Object.keys(categoryCounts),
-            datasets: [{ data: Object.values(categoryCounts), backgroundColor: palette, borderColor: '#0a0e27', borderWidth: 2 }]
+            datasets: [{ data: Object.values(categoryCounts), backgroundColor: palette, borderColor: '#FFF4D6', borderWidth: 2 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: chartTextColor } } } }
     }));
@@ -188,8 +188,8 @@
             labels: salesByDay.map(d => d[0]),
             datasets: [{
                 label: 'Sales (₱)', data: salesByDay.map(d => d[1]),
-                borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.25)',
-                fill: true, tension: 0.35, pointBackgroundColor: '#a5b4fc',
+                borderColor: '#FC6C26', backgroundColor: 'rgba(252,108,38,0.25)',
+                fill: true, tension: 0.35, pointBackgroundColor: '#E14E17',
             }]
         },
         options: {

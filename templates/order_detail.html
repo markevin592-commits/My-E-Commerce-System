@@ -34,7 +34,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <div style="display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); font-weight:800; font-size:1.1rem;">
+        <div style="display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid rgba(58,35,23,0.12); font-weight:800; font-size:1.1rem;">
             Total: ₱{{ "%.2f"|format(order.total) }}
         </div>
     </div>
@@ -58,7 +58,7 @@
         {% endif %}
 
         {% if current_user.role in ['admin', 'staff'] %}
-        <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(58,35,23,0.12);">
             <div style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); margin-bottom:8px;">Update Status</div>
             <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

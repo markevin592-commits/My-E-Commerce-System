@@ -89,7 +89,7 @@
             </li>
             {% endfor %}
         </ul>
-        <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08); font-weight:700;">
+        <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:1px solid rgba(58,35,23,0.12); font-weight:700;">
             <span>Total</span><span>₱{{ "%.2f"|format(cart_total) }}</span>
         </div>
         <a href="{{ url_for('view_cart') }}" class="btn small full" style="margin-top:12px;">Go to Checkout</a>
@@ -97,7 +97,7 @@
         <div class="empty-state">Your cart is empty. <a href="{{ url_for('store_page') }}">Start shopping →</a></div>
         {% endif %}
 
-        <div style="margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; gap:12px;">
+        <div style="margin-top:18px; padding-top:16px; border-top:1px solid rgba(58,35,23,0.12); display:flex; flex-direction:column; gap:12px;">
             <h4 style="margin:0; font-size:0.85rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-dim);">Account Snapshot</h4>
             <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
                 <span style="color:var(--text-dim);">Total Orders</span><strong>{{ order_count }}</strong>

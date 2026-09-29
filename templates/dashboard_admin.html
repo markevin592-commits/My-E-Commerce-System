@@ -100,8 +100,8 @@
 <script>
     const statusCounts = {{ status_counts|tojson }};
     const salesByDay = {{ sales_by_day|tojson }};
-    const chartTextColor = 'rgba(255,255,255,0.75)';
-    const gridColor = 'rgba(255,255,255,0.08)';
+    const chartTextColor = 'rgba(58,35,23,0.75)';
+    const gridColor = 'rgba(58,35,23,0.1)';
     const dashboardCharts = [];
 
     dashboardCharts.push(new Chart(document.getElementById('statusDonutChart'), {
@@ -110,8 +110,8 @@
             labels: Object.keys(statusCounts),
             datasets: [{
                 data: Object.values(statusCounts),
-                backgroundColor: ['#fde68a', '#93c5fd', '#86efac', '#fca5a5'],
-                borderColor: '#0a0e27',
+                backgroundColor: ['#EAB308', '#F59E0B', '#16A34A', '#DC2626'],
+                borderColor: '#FFF4D6',
                 borderWidth: 2,
             }]
         },
@@ -129,11 +129,11 @@
             datasets: [{
                 label: 'Sales (₱)',
                 data: salesByDay.map(d => d[1]),
-                borderColor: '#8b5cf6',
-                backgroundColor: 'rgba(139,92,246,0.25)',
+                borderColor: '#FC6C26',
+                backgroundColor: 'rgba(252,108,38,0.25)',
                 fill: true,
                 tension: 0.35,
-                pointBackgroundColor: '#a5b4fc',
+                pointBackgroundColor: '#E14E17',
             }]
         },
         options: {
