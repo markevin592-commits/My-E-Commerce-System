@@ -1,7 +1,4 @@
 Flask>=3.0
 Flask-WTF>=1.2
 Werkzeug>=3.0
-<<<<<<< HEAD
-=======
 gunicorn>=21.2
->>>>>>> cb657a8 (Add gunicorn)
