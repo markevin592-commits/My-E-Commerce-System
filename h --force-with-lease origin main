@@ -1,0 +1,40 @@
+[33mcommit c5945170cb63d7d7e566bf3703f41fd07ed0d68e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: markevin592-commits <markevin592@gmail.com>
+Date:   Sat Oct 10 17:46:33 2026 +0800
+
+    Add files via upload
+
+ 403.html                |  20 [32m+++[m
+ 404.html                |  16 [32m++[m
+ 500.html                |  16 [32m++[m
+ _macros.html            |   9 [32m+[m
+ analytics.html          | 216 [32m++++++++++++++++++++++++[m
+ app.py                  |  92 [32m+++++++++[m[31m-[m
+ base.html               | 122 [32m++++++++++++++[m
+ cart.html               |  87 [32m++++++++++[m
+ dashboard_admin.html    | 160 [32m++++++++++++++++++[m
+ dashboard_customer.html | 117 [32m+++++++++++++[m
+ dashboard_staff.html    |  58 [32m+++++++[m
+ keyboard.svg            |  15 [32m++[m
+ login.html              |  60 [32m+++++++[m
+ models.py               | 101 [32m++[m[31m---------[m
+ mouse.svg               |  19 [32m+++[m
+ mug.svg                 |  20 [32m+++[m
+ my_orders.html          |  36 [32m++++[m
+ notebook.svg            |  22 [32m+++[m
+ order_detail.html       |  78 [32m+++++++++[m
+ order_review.html       |  65 [32m++++++++[m
+ orders.html             |  52 [32m++++++[m
+ product_form.html       |  78 [32m+++++++++[m
+ products.html           |  44 [32m+++++[m
+ profile.html            |  54 [32m++++++[m
+ public_shop.html        | 111 [32m++++++++++++[m
+ requirements.txt        |   1 [31m-[m
+ settings.html           |  47 [32m++++++[m
+ signup.html             |  81 [32m+++++++++[m
+ store.html              | 123 [32m++++++++++++++[m
+ style.css               | 435 [32m++++++++++++++++++++++++++++++++++++++++++++++++[m
+ tote.svg                |  23 [32m+++[m
+ user_form.html          |  63 [32m+++++++[m
+ users.html              |  40 [32m+++++[m
+ 33 files changed, 2392 insertions(+), 89 deletions(-)
