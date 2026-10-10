@@ -410,3 +410,26 @@ tr:last-child td { border-bottom: none; }
     .product-card .card-actions form,
     .product-card .card-actions .btn { width: 100%; flex: none; min-width: 0; }
 }
+
+/* ---------- Product pictures ---------- */
+.product-thumb {
+    width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+    border-radius: 12px; margin-bottom: 4px;
+    background: rgba(252,108,38,0.08);
+}
+.product-thumb.placeholder { display: flex; align-items: center; justify-content: center; font-size: 2.6rem; }
+
+/* small square thumbnails used inside tables (Products, Cart, Order review) */
+.row-thumb {
+    width: 44px; height: 44px; object-fit: cover; display: inline-block; vertical-align: middle;
+    border-radius: 8px; margin-right: 10px; background: rgba(252,108,38,0.08);
+}
+.row-thumb.placeholder { display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+
+/* Add/Edit Product form */
+.current-picture, .image-preview {
+    width: 160px; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+    border-radius: 12px; border: 1px solid var(--card-border); background: #fff;
+}
+.current-picture { margin-bottom: 10px; }
+.image-preview { margin-top: 10px; }

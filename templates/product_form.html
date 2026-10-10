@@ -9,7 +9,7 @@
 </div>
 
 <div class="panel form-card">
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="field">
             <label>Product Name</label>
@@ -34,10 +34,45 @@
             <input type="text" name="category" value="{{ form.category or '' }}" placeholder="e.g. Electronics">
         </div>
 
+        {% set has_current_image = (mode == 'edit' and target and target.image) %}
+        <div class="field">
+            <label>Product Picture</label>
+            {% if has_current_image %}
+            <img class="current-picture" src="{{ url_for('static', filename=target.image) }}" alt="Current picture of {{ target.name }}">
+            {% endif %}
+            <input type="file" name="image" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp">
+            <small>Optional · PNG, JPG, GIF or WEBP · up to 3 MB.{% if has_current_image %} Choosing a new file replaces the current picture.{% endif %}</small>
+            <img id="imagePreview" class="image-preview" alt="Preview of the chosen picture" style="display:none;">
+        </div>
+        {% if has_current_image %}
+        <div class="checkbox-row">
+            <input type="checkbox" name="remove_image" id="remove_image">
+            <label for="remove_image" style="margin:0; text-transform:none; font-weight:500;">Remove the current picture</label>
+        </div>
+        {% endif %}
+
         <div class="actions-row">
             <button type="submit" class="btn">{{ 'Save Changes' if mode=='edit' else 'Add Product' }}</button>
             <a href="{{ url_for('manage_products') }}" class="btn ghost">Cancel</a>
         </div>
     </form>
 </div>
+
+<script>
+    // Show a preview of the chosen picture, and catch oversized files before uploading.
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    imageInput.addEventListener('change', () => {
+        const file = imageInput.files[0];
+        if (!file) { imagePreview.style.display = 'none'; return; }
+        if (file.size > 3 * 1024 * 1024) {
+            alert('That picture is over 3 MB — please choose a smaller one.');
+            imageInput.value = '';
+            imagePreview.style.display = 'none';
+            return;
+        }
+        imagePreview.src = URL.createObjectURL(file);
+        imagePreview.style.display = 'block';
+    });
+</script>
 {% endblock %}

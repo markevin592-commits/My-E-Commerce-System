@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import product_image %}
 {% block title %}My Cart{% endblock %}
 {% block content %}
 <div class="page-header">
@@ -16,7 +17,7 @@
         <tbody>
         {% for row in items %}
             <tr>
-                <td>{{ row.product.name }}</td>
+                <td>{{ product_image(row.product, 'row-thumb') }}{{ row.product.name }}</td>
                 <td>₱{{ "%.2f"|format(row.product.price) }}</td>
                 <td>
                     <form method="POST" action="{{ url_for('update_cart', product_id=row.product.id) }}" class="qty-stepper" style="display:inline-flex;" onsubmit="return true;">

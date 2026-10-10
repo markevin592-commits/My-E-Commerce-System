@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Canvas tote bag">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4D6"/><stop offset="1" stop-color="#FFDDA0"/></linearGradient>
+  <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FC6C26"/><stop offset="1" stop-color="#E14E17"/></linearGradient>
+  <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b3123"/><stop offset="1" stop-color="#2a170d"/></linearGradient>
+</defs>
+<rect width="400" height="300" fill="url(#bg)"/>
+<circle cx="200" cy="150" r="118" fill="#FC6C26" opacity=".10"/>
+
+<defs>
+  <pattern id="weave" width="6" height="6" patternUnits="userSpaceOnUse">
+    <path d="M0 0H6M0 3H6" stroke="#B99B66" stroke-opacity=".28" stroke-width="1"/>
+  </pattern>
+</defs>
+<ellipse cx="200" cy="274" rx="100" ry="9" fill="#3A2317" opacity=".18"/>
+<path d="M158 124 C156 56 244 56 242 124" stroke="#B99B66" stroke-width="12" fill="none" stroke-linecap="round"/>
+<path d="M118 118 H282 L296 258 Q297 268 287 268 H113 Q103 268 104 258 Z" fill="#EBD9B4"/>
+<path d="M118 118 H282 L296 258 Q297 268 287 268 H113 Q103 268 104 258 Z" fill="url(#weave)"/>
+<path d="M124 136 H276" stroke="#B99B66" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+<circle cx="200" cy="196" r="40" fill="url(#orange)"/>
+<text x="200" y="208" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="31" fill="#fff">MK</text>
+<path d="M126 150 L120 250" stroke="#fff" stroke-opacity=".28" stroke-width="6" stroke-linecap="round" fill="none"/>
+</svg>

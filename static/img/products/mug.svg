@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Ceramic mug">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4D6"/><stop offset="1" stop-color="#FFDDA0"/></linearGradient>
+  <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FC6C26"/><stop offset="1" stop-color="#E14E17"/></linearGradient>
+  <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b3123"/><stop offset="1" stop-color="#2a170d"/></linearGradient>
+</defs>
+<rect width="400" height="300" fill="url(#bg)"/>
+<circle cx="200" cy="150" r="118" fill="#FC6C26" opacity=".10"/>
+
+<ellipse cx="200" cy="262" rx="92" ry="9" fill="#3A2317" opacity=".18"/>
+<path d="M272 122 C324 120 328 202 266 206" stroke="#E14E17" stroke-width="15" fill="none" stroke-linecap="round"/>
+<path d="M128 100 H272 V208 Q272 248 232 248 H168 Q128 248 128 208 Z" fill="url(#orange)"/>
+<ellipse cx="200" cy="100" rx="72" ry="15" fill="#FFF4D6"/>
+<ellipse cx="200" cy="102" rx="62" ry="11" fill="#3A2317"/>
+<path d="M142 118 V208 Q142 232 160 238" stroke="#fff" stroke-opacity=".30" stroke-width="8" stroke-linecap="round" fill="none"/>
+<text x="204" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="38" fill="#FFF4D6" opacity=".95">MK</text>
+<path d="M178 74 C168 60 190 50 180 34" stroke="#3A2317" stroke-opacity=".25" stroke-width="5" stroke-linecap="round" fill="none"/>
+<path d="M204 70 C194 56 216 46 206 30" stroke="#3A2317" stroke-opacity=".25" stroke-width="5" stroke-linecap="round" fill="none"/>
+<path d="M230 74 C220 60 242 50 232 34" stroke="#3A2317" stroke-opacity=".25" stroke-width="5" stroke-linecap="round" fill="none"/>
+</svg>

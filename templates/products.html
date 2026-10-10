@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import product_image %}
 {% block title %}Manage Products{% endblock %}
 {% block content %}
 <div class="page-header">
@@ -16,7 +17,7 @@
         <tbody>
         {% for p in products %}
             <tr>
-                <td>{{ p.name }}</td>
+                <td>{{ product_image(p, 'row-thumb') }}{{ p.name }}</td>
                 <td>{{ p.category }}</td>
                 <td>₱{{ "%.2f"|format(p.price) }}</td>
                 <td>

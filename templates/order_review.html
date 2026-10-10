@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import product_image %}
 {% block title %}Review Your Order{% endblock %}
 {% block content %}
 <div class="page-header">
@@ -16,7 +17,7 @@
             <thead><tr><th>Product</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
             <tbody>
                 <tr>
-                    <td>{{ product.name }}</td>
+                    <td>{{ product_image(product, 'row-thumb') }}{{ product.name }}</td>
                     <td>₱{{ "%.2f"|format(product.price) }}</td>
                     <td>{{ quantity }}</td>
                     <td>₱{{ "%.2f"|format(subtotal) }}</td>

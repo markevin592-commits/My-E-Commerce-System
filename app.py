@@ -14,7 +14,9 @@ resets all data (by design - "Temporary Storage", no database).
 """
 
 from functools import wraps
+import os
 import re
+import uuid
 from flask import (
     Flask, render_template, request, redirect, url_for, session, flash, abort
 )
@@ -26,6 +28,7 @@ from models import DataStore, Order, seed
 app = Flask(__name__)
 app.secret_key = "change-this-secret-key-before-deploying"  # used to sign the session cookie
 csrf = CSRFProtect(app)  # every POST form now needs a valid {{ csrf_token() }} field
+app.config["MAX_CONTENT_LENGTH"] = 3 * 1024 * 1024  # reject uploads over 3 MB
 
 
 @app.errorhandler(CSRFError)
@@ -33,8 +36,66 @@ def handle_csrf_error(e):
     flash("Your session expired or that form was already submitted. Please try again.", "error")
     return redirect(request.referrer or url_for("index"))
 
+
+@app.errorhandler(413)
+def handle_file_too_large(e):
+    flash("That picture is too big — please keep it under 3 MB.", "error")
+    return redirect(request.referrer or url_for("index"))
+
+
 store = DataStore()
 seed(store)
+
+
+# ---------------------------------------------------------------------------
+# PRODUCT PICTURE UPLOADS
+# Like everything else in this project the files are temporary: they live in
+# static/uploads/ and are forgotten when the server's data resets.
+# ---------------------------------------------------------------------------
+
+UPLOAD_DIR = os.path.join(app.static_folder, "uploads")
+ALLOWED_IMAGE_EXT = {"png", "jpg", "jpeg", "gif", "webp"}
+
+
+def _looks_like_image(header):
+    """Check the file's first bytes (not just its name) so a renamed .exe/.txt is refused."""
+    return (
+        header.startswith(b"\x89PNG\r\n\x1a\n")
+        or header.startswith(b"\xff\xd8\xff")
+        or header[:6] in (b"GIF87a", b"GIF89a")
+        or (header[:4] == b"RIFF" and header[8:12] == b"WEBP")
+    )
+
+
+def save_product_image(file_storage):
+    """Validate and save an uploaded product picture.
+
+    Returns the path relative to /static (e.g. "uploads/ab12.png"), or None when
+    no file was chosen. Raises ValueError with a friendly message if it's not a
+    real image.
+    """
+    if not file_storage or not file_storage.filename:
+        return None
+    filename = file_storage.filename
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext not in ALLOWED_IMAGE_EXT:
+        raise ValueError("Product picture must be a PNG, JPG, GIF, or WEBP image.")
+    header = file_storage.stream.read(16)
+    file_storage.stream.seek(0)
+    if not _looks_like_image(header):
+        raise ValueError("That file doesn't look like a real image. Please choose a PNG, JPG, GIF, or WEBP.")
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    saved_name = f"{uuid.uuid4().hex}.{ext}"
+    file_storage.save(os.path.join(UPLOAD_DIR, saved_name))
+    return f"uploads/{saved_name}"
+
+
+def remove_uploaded_image(image_path):
+    """Delete a previously uploaded picture. Bundled images (img/products/...) are never touched."""
+    if image_path and image_path.startswith("uploads/"):
+        target = os.path.join(UPLOAD_DIR, os.path.basename(image_path))
+        if os.path.isfile(target):
+            os.remove(target)
 
 
 # ---------------------------------------------------------------------------
@@ -388,6 +449,13 @@ def add_product():
             errors.append("Stock must be a whole number.")
             stock_val = 0
 
+        image_path = None
+        if not errors:
+            try:
+                image_path = save_product_image(request.files.get("image"))
+            except ValueError as e:
+                errors.append(str(e))
+
         if errors:
             for e in errors:
                 flash(e, "error")
@@ -395,7 +463,8 @@ def add_product():
 
         store.add_product(name=name, description=description, price=price_val,
                            stock=stock_val, category=category,
-                           created_by=current_user().username)
+                           created_by=current_user().username,
+                           image=image_path or "")
         flash(f"Product '{name}' added.", "success")
         return redirect(url_for("manage_products"))
 
@@ -435,13 +504,27 @@ def edit_product(product_id):
             errors.append("Stock must be a whole number.")
             stock_val = product.stock
 
+        new_image = None
+        if not errors:
+            try:
+                new_image = save_product_image(request.files.get("image"))
+            except ValueError as e:
+                errors.append(str(e))
+
         if errors:
             for e in errors:
                 flash(e, "error")
             return render_template("product_form.html", form=request.form, mode="edit", target=product)
 
-        store.update_product(product_id, name=name, description=description,
-                              price=price_val, stock=stock_val, category=category)
+        fields = dict(name=name, description=description, price=price_val,
+                      stock=stock_val, category=category)
+        if new_image:                                   # a new picture replaces the old one
+            remove_uploaded_image(product.image)
+            fields["image"] = new_image
+        elif request.form.get("remove_image") == "on":  # or the picture was explicitly removed
+            remove_uploaded_image(product.image)
+            fields["image"] = ""
+        store.update_product(product_id, **fields)
         flash("Product updated.", "success")
         return redirect(url_for("manage_products"))
 
@@ -452,7 +535,10 @@ def edit_product(product_id):
 @roles_required("admin", "staff")
 def delete_product(product_id):
     try:
+        product = store.get_product(product_id)
         store.delete_product(product_id)
+        if product:
+            remove_uploaded_image(product.image)
         flash("Product deleted.", "success")
     except ValueError as e:
         flash(str(e), "error")

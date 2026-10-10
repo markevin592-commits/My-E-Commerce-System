@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% from "_macros.html" import product_image %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -58,6 +59,7 @@
             <div class="product-grid" id="shopGrid">
                 {% for p in products %}
                 <div class="product-card" data-category="{{ p.category }}">
+                    {{ product_image(p) }}
                     <span class="cat-tag">{{ p.category }}</span>
                     <h4>{{ p.name }}</h4>
                     <div class="desc">{{ p.description }}</div>

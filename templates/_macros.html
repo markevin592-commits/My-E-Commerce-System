@@ -1,0 +1,9 @@
+{# Shared helpers. Import with:  {% from "_macros.html" import product_image %} #}
+
+{% macro product_image(p, cls="product-thumb") -%}
+  {%- if p.image -%}
+    <img class="{{ cls }}" src="{{ url_for('static', filename=p.image) }}" alt="{{ p.name }}" loading="lazy">
+  {%- else -%}
+    <div class="{{ cls }} placeholder" aria-hidden="true">{{ {'Electronics': '🔌', 'Stationery': '📓', 'Home': '🏠', 'Apparel': '👕', 'Grocery': '🛒', 'Beauty': '💄', 'Sports': '🏅', 'Toys': '🧸', 'Books': '📚', 'Pets': '🐾'}.get(p.category, '🛍️') }}</div>
+  {%- endif -%}
+{%- endmacro %}

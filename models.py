@@ -146,7 +146,7 @@ ROLE_CLASSES = {"admin": Admin, "staff": Staff, "customer": Customer}
 class Product:
     _id_counter = count(1)
 
-    def __init__(self, name, description, price, stock, category, created_by):
+    def __init__(self, name, description, price, stock, category, created_by, image=""):
         self.id = next(Product._id_counter)
         self.name = name.strip()
         self.description = description.strip()
@@ -154,6 +154,7 @@ class Product:
         self.stock = int(stock)
         self.category = category.strip() or "General"
         self.created_by = created_by          # username of admin/staff who added it
+        self.image = (image or "").strip()    # path under /static (e.g. "img/products/mug.svg"); "" = no picture
         self.created_at = datetime.now()
 
     def in_stock(self):
@@ -173,6 +174,7 @@ class Product:
             "stock": self.stock,
             "category": self.category,
             "created_by": self.created_by,
+            "image": self.image,
             "created_at": self.created_at.strftime("%b %d, %Y"),
         }
 
@@ -533,99 +535,28 @@ class DataStore:
 
 
 def seed(store: DataStore):
-    """Create the real admin/staff accounts, plus one demo customer for testing the store."""
+    """Create the real admin/staff accounts, one demo customer, and a small starter catalog."""
     store.add_user("admin", "markiven592", "changeme123", "Mark Kevin Mag-aso", "markiven592@gmail.com")
     store.add_user("staff", "jymart114", "changeme123", "Jymart Bongolo", "jymart114@gmail.com")
     store.add_user("customer", "customer", "customer123", "Juan Dela Cruz", "juan@example.com")
 
+    # Starter catalog: five products, each with a picture bundled in static/img/products/.
+    # (Admin/staff can upload their own photo for any product from Add/Edit Product.)
     store.add_product(name="Wireless Mouse", description="Ergonomic 2.4GHz wireless mouse.",
-                       price=349.00, stock=25, category="Electronics", created_by="admin")
+                       price=349.00, stock=25, category="Electronics", created_by="admin",
+                       image="img/products/mouse.svg")
     store.add_product(name="Mechanical Keyboard", description="RGB backlit mechanical keyboard.",
-                       price=1499.00, stock=12, category="Electronics", created_by="staff")
+                       price=1499.00, stock=12, category="Electronics", created_by="staff",
+                       image="img/products/keyboard.svg")
     store.add_product(name="Notebook (A5)", description="120-page dotted notebook.",
-                       price=79.00, stock=100, category="Stationery", created_by="staff")
+                       price=79.00, stock=100, category="Stationery", created_by="staff",
+                       image="img/products/notebook.svg")
     store.add_product(name="Ceramic Mug", description="350ml matte ceramic mug.",
-                       price=149.00, stock=4, category="Home", created_by="admin")
-
-    # --- Electronics ---
-    store.add_product(name="USB-C Hub (7-in-1)", description="HDMI, USB 3.0, SD card, and PD passthrough.",
-                       price=899.00, stock=18, category="Electronics", created_by="staff")
-    store.add_product(name="Bluetooth Earbuds", description="True wireless earbuds with charging case.",
-                       price=1299.00, stock=20, category="Electronics", created_by="admin")
-    store.add_product(name="Portable Power Bank 10000mAh", description="Slim fast-charging power bank.",
-                       price=699.00, stock=30, category="Electronics", created_by="staff")
-    store.add_product(name="Webcam 1080p", description="Clip-on HD webcam with built-in mic.",
-                       price=999.00, stock=0, category="Electronics", created_by="admin")
-
-    # --- Stationery ---
-    store.add_product(name="Gel Pen Set (12pcs)", description="Smooth-writing gel pens in assorted colors.",
-                       price=99.00, stock=60, category="Stationery", created_by="staff")
-    store.add_product(name="Sticky Notes Bundle", description="5 pads of 3x3 sticky notes, neon colors.",
-                       price=65.00, stock=80, category="Stationery", created_by="staff")
-    store.add_product(name="Desk Planner 2026", description="Undated weekly planner with monthly tabs.",
-                       price=249.00, stock=3, category="Stationery", created_by="admin")
-
-    # --- Home ---
-    store.add_product(name="Scented Candle (Vanilla)", description="Soy wax candle, 40-hour burn time.",
-                       price=189.00, stock=22, category="Home", created_by="admin")
-    store.add_product(name="Throw Pillow Cover", description="45x45cm linen-blend cushion cover.",
-                       price=159.00, stock=15, category="Home", created_by="staff")
-    store.add_product(name="Stainless Steel Tumbler", description="500ml insulated tumbler, keeps drinks cold 12hrs.",
-                       price=299.00, stock=5, category="Home", created_by="admin")
-
-    # --- Apparel ---
-    store.add_product(name="Cotton Crewneck Tee", description="Unisex 100% cotton tee, relaxed fit.",
-                       price=349.00, stock=40, category="Apparel", created_by="staff")
+                       price=149.00, stock=4, category="Home", created_by="admin",
+                       image="img/products/mug.svg")
     store.add_product(name="Canvas Tote Bag", description="Heavy-duty canvas tote, 15L capacity.",
-                       price=229.00, stock=27, category="Apparel", created_by="admin")
-
-    # --- Grocery ---
-    store.add_product(name="Single-Origin Coffee Beans (250g)", description="Medium roast, notes of caramel and citrus.",
-                       price=379.00, stock=35, category="Grocery", created_by="staff")
-    store.add_product(name="Artisan Honey (Pure, 350ml)", description="Raw unfiltered honey from local apiaries.",
-                       price=259.00, stock=2, category="Grocery", created_by="admin")
-
-    # --- More Electronics ---
-    store.add_product(name="Wireless Charging Pad", description="10W Qi fast charger, non-slip base.",
-                       price=549.00, stock=24, category="Electronics", created_by="admin")
-    store.add_product(name="Bluetooth Mini Speaker", description="Portable speaker, 8-hour battery, IPX5.",
-                       price=799.00, stock=16, category="Electronics", created_by="staff")
-    store.add_product(name="Phone Ring Light", description="LED selfie ring light with tripod stand.",
-                       price=399.00, stock=33, category="Electronics", created_by="staff")
-
-    # --- Beauty ---
-    store.add_product(name="Vitamin C Serum (30ml)", description="Brightening facial serum with niacinamide.",
-                       price=449.00, stock=28, category="Beauty", created_by="admin")
-    store.add_product(name="Matte Lip Tint Set (3pcs)", description="Long-lasting, transfer-proof lip tints.",
-                       price=329.00, stock=41, category="Beauty", created_by="staff")
-    store.add_product(name="Sunscreen SPF50 (50ml)", description="Lightweight, non-greasy daily sunscreen.",
-                       price=389.00, stock=1, category="Beauty", created_by="admin")
-
-    # --- Sports & Outdoors ---
-    store.add_product(name="Yoga Mat (6mm)", description="Non-slip eco-friendly yoga/exercise mat.",
-                       price=599.00, stock=19, category="Sports", created_by="staff")
-    store.add_product(name="Resistance Bands Set (5pcs)", description="Latex bands, light to heavy resistance.",
-                       price=349.00, stock=37, category="Sports", created_by="admin")
-    store.add_product(name="Adjustable Dumbbell (5kg)", description="Rubber-coated hex dumbbell, single unit.",
-                       price=449.00, stock=14, category="Sports", created_by="staff")
-
-    # --- Toys & Hobbies ---
-    store.add_product(name="3D Wooden Puzzle", description="DIY mechanical model kit, no glue needed.",
-                       price=299.00, stock=23, category="Toys", created_by="admin")
-    store.add_product(name="Building Blocks Set (500pcs)", description="Compatible creative brick set, all ages.",
-                       price=899.00, stock=9, category="Toys", created_by="staff")
-
-    # --- Books ---
-    store.add_product(name="'Atomic Habits' (Paperback)", description="Bestselling book on building good habits.",
-                       price=549.00, stock=17, category="Books", created_by="admin")
-    store.add_product(name="Sketchbook (A4, 100gsm)", description="Blank pages for drawing and sketching.",
-                       price=189.00, stock=45, category="Books", created_by="staff")
-
-    # --- Pets ---
-    store.add_product(name="Cat Scratching Post", description="Sisal-wrapped post with plush platform.",
-                       price=749.00, stock=8, category="Pets", created_by="admin")
-    store.add_product(name="Dog Chew Toy (Durable)", description="Non-toxic rubber chew toy, medium breeds.",
-                       price=249.00, stock=30, category="Pets", created_by="staff")
+                       price=229.00, stock=27, category="Apparel", created_by="admin",
+                       image="img/products/tote.svg")
 
     # The demo customer starts with a saved address/phone for convenience at checkout,
     # but with NO orders — Recent Orders / My Orders should stay empty until they
